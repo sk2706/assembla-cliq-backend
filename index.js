@@ -3,22 +3,24 @@ import express from "express";
 const app = express();
 app.use(express.json());
 
-// root test
+// Root check
 app.get("/", (req, res) => {
-    res.send("Backend is running on Railway!");
+    res.send("Backend is running!");
 });
 
-// Zoho Cliq Handler
+// Cliq bot handler
 app.post("/cliq", (req, res) => {
-    console.log("Received:", req.body);
+    console.log("Received from Cliq:", req.body);
 
-    const msg = req.body.message || "Nothing received";
-    res.json({ text: "You said: " + msg });
+    let replyText = "Hello from Node.js backend!";
+
+    if (req.body.message) {
+        replyText = "You said: " + req.body.message;
+    }
+
+    res.json({ text: replyText });
 });
 
-// IMPORTANT: Railway uses dynamic port
+// FIXED!!
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

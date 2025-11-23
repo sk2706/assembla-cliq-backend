@@ -1,32 +1,26 @@
-const express = require("express");
-const cors = require("cors");
-
-const cliqService = require("./services/cliqService");
+import express from "express";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
 
-// Health check
+// Basic test endpoint
 app.get("/", (req, res) => {
-    res.send("Assembla-Cliq Backend Running Successfully!");
+    res.send("Backend is running!");
 });
 
-// Main bot handler endpoint
-app.post("/cliq", async (req, res) => {
-    console.log("📩 Received from Cliq:", req.body);
+// Cliq bot handler
+app.post("/cliq", (req, res) => {
+    console.log("Received from Cliq:", req.body);
 
-    try {
-        const responseMessage = await cliqService.handleMessage(req.body);
-        res.json(responseMessage);
-    } catch (err) {
-        console.error("❌ Error:", err);
-        res.json({ text: "Oops! Something went wrong 😢" });
+    let replyText = "Hello from Node.js backend!";
+
+    if (req.body.message) {
+        replyText = "You said: " + req.body.message;
     }
+
+    res.json({ text: replyText });
 });
 
+// Listen (correct for Railway)
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log("🚀 Server running on port", PORT);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

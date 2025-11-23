@@ -1,20 +1,32 @@
 const express = require("express");
+const cors = require("cors");
+
+const cliqService = require("./services/cliqService");
+
 const app = express();
 app.use(express.json());
+app.use(cors());
 
+// Health check
 app.get("/", (req, res) => {
     res.send("Assembla-Cliq Backend Running Successfully!");
 });
 
-// Endpoint for bot (we will configure Cliq to call this)
-app.post("/cliq", (req, res) => {
-    console.log("Received from Cliq:", req.body);
-    res.json({
-        text: "Hello! Your Assembla-Cliq bot is connected 🎉"
-    });
+// Main bot handler endpoint
+app.post("/cliq", async (req, res) => {
+    console.log("📩 Received from Cliq:", req.body);
+
+    try {
+        const responseMessage = await cliqService.handleMessage(req.body);
+        res.json(responseMessage);
+    } catch (err) {
+        console.error("❌ Error:", err);
+        res.json({ text: "Oops! Something went wrong 😢" });
+    }
 });
 
-// Start server on port 3000
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("🚀 Server running on port", PORT);
 });

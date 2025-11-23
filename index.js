@@ -1,26 +1,39 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
-// Basic test endpoint
+// Health / test endpoint
 app.get("/", (req, res) => {
-    res.send("Backend is running!");
+  res.send("Assembla-Cliq Backend Running Successfully!");
 });
 
-// Cliq bot handler
+// MESSAGE handler (this is the URL you will give to Cliq bot settings)
 app.post("/cliq", (req, res) => {
-    console.log("Received from Cliq:", req.body);
+  console.log("---- Received payload from Cliq ----");
+  console.log(JSON.stringify(req.body, null, 2));
 
-    let replyText = "Hello from Node.js backend!";
+  // Example: payload may include msg text under req.body.message or req.body.text
+  // adapt this depending on the exact payload you receive from Cliq
+  const incomingText = req.body?.message ?? req.body?.text ?? req.body?.messageText ?? "";
 
-    if (req.body.message) {
-        replyText = "You said: " + req.body.message;
-    }
+  // Simple reply logic
+  let reply = { text: "Hello! Your Assembla-Cliq bot is connected 🎉" };
+  if (incomingText) {
+    reply = { text: `You said: ${incomingText}` };
+  }
 
-    res.json({ text: replyText });
+  // If you want to call Assembla APIs here, do it before sending response (or use async push)
+  // Example: axios.post(...)
+
+  // send JSON back to Cliq (synchronous response)
+  res.json(reply);
 });
 
-// Listen (correct for Railway)
+// Use Rails-style port env var so Railway can assign it
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
